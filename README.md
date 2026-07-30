@@ -1,4 +1,4 @@
-# ABC Technologies — AI-Powered Customer Support Automation System
+# AI-Powered Customer Support Automation System
 
 ## Description
 A LangGraph-based multi-agent customer support system for ABC Technologies.
