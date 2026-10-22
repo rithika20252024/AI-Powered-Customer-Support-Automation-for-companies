@@ -21,10 +21,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
   const history = Array.isArray(req.body?.history) ? req.body.history.slice(-8) : [];
   if (!message || message.length > 2000) return res.status(400).json({ error: 'Enter a message under 2,000 characters.' });
-  // Vercel supplies VERCEL_OIDC_TOKEN to deployed functions automatically.
-  // AI_GATEWAY_API_KEY is useful for local development or non-Vercel hosting.
-  const gatewayToken = process.env.AI_GATEWAY_API_KEY || process.env.VERCEL_OIDC_TOKEN;
-  if (!gatewayToken) return res.status(503).json({ error: 'AI Gateway authentication is missing. On Vercel, enable OIDC for the project; for local or other hosting, set AI_GATEWAY_API_KEY.' });
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'AI is not configured yet. Add OPENAI_API_KEY in the Vercel project environment variables.' });
 
   const intent = message.match(/price|plan|buy|purchase|sales|quote|cost/i) ? 'sales'
     : message.match(/refund|invoice|payment|bill|charge|subscription/i) ? 'billing'
@@ -33,10 +31,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     : 'general';
   const risk = highRisk.test(message);
   const context = knowledge.filter((entry) => entry.type === intent || entry.type === 'general').map((entry) => entry.text).join('\n');
-  const model = process.env.AI_GATEWAY_MODEL || 'openai/gpt-4o-mini';
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
   try {
-    const upstream = await fetch('https://ai-gateway.vercel.sh/v1/chat/completions', {
-      method: 'POST', headers: { Authorization: `Bearer ${gatewayToken}`, 'Content-Type': 'application/json' },
+    const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ model, temperature: 0.4, max_tokens: 450, messages: [
         { role: 'system', content: `You are a kind, concise customer support agent for ABC Technologies. Answer using this policy context; do not invent policy details. If a high-risk request is pending supervisor approval, acknowledge it and do not claim it is completed.\n\nPolicy context:\n${context}` },
         ...history.filter((item: any) => ['user', 'assistant'].includes(item?.role) && typeof item?.content === 'string').map((item: any) => ({ role: item.role, content: item.content.slice(0, 2000) })),

@@ -172,7 +172,7 @@ The repository also includes a responsive web chat with intent, risk, retrieved 
 
 [Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-cuuu5tqui.vercel.app/)
 
-The public web app is deployed. The Vercel API uses Vercel AI Gateway and the deployment's OIDC token, so a provider API key is not required on Vercel. Requests may consume AI Gateway credits or use a configured provider connection.
+The public web app is deployed. The web API uses OpenAI for generated replies; add an OpenAI API key as a server-side Vercel environment variable to enable chat.
 
 ### Local development
 
@@ -188,8 +188,6 @@ Open the local URL printed by Vite. You can set `OLLAMA_MODEL` and `OLLAMA_BASE_
 
 ### Vercel
 
-Import this repository into Vercel with the repository root as the project root. The serverless API calls Vercel AI Gateway using `VERCEL_OIDC_TOKEN`, which Vercel provides at runtime. `AI_GATEWAY_MODEL` is optional and defaults to `openai/gpt-4o-mini`. For local development or a different host, create a Vercel AI Gateway API key and set it as the server-only `AI_GATEWAY_API_KEY` environment variable. Never use a `VITE_` prefix for a secret. Gateway usage can incur charges or require a payment method/credits.
-
-To create a Gateway key, open the [Vercel AI Gateway API Keys page](https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway%2Fapi-keys&title=AI+Gateway+API+Keys), select **Create key**, and copy it somewhere secure. In Vercel, open this project’s **Settings → Environment Variables**, add `AI_GATEWAY_API_KEY`, select the environments you need, and redeploy. The key is shown only when created. For OpenAI specifically, create an API key at [OpenAI API keys](https://platform.openai.com/api-keys); this app’s Gateway path does not need that key unless you configure OpenAI as a BYOK provider.
+Import this repository into Vercel with the repository root as the project root. Create an API key at [OpenAI API keys](https://platform.openai.com/api-keys). In Vercel, open this project’s **Settings → Environment Variables**, add `OPENAI_API_KEY` as a Secret for Production, then redeploy. The optional server-side `OPENAI_MODEL` defaults to `gpt-4o-mini`. Never use a `VITE_` prefix for a secret or commit the key. OpenAI API usage may incur charges.
 
 The web app stores conversation history in the browser, separately for each customer ID.
