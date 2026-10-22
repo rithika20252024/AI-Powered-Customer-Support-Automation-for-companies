@@ -1,7 +1,7 @@
 # AI-Powered Customer Support Automation System
 ### Live site
 
-[Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-cuuu5tqui.vercel.app/)
+[Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-1tw5uzjq1.vercel.app/)
 
 ## Description
 A LangGraph-based multi-agent customer support system for ABC Technologies.
@@ -170,7 +170,7 @@ The repository also includes a responsive web chat with intent, risk, retrieved 
 
 ### Live site
 
-[Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-cuuu5tqui.vercel.app/)
+[Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-1tw5uzjq1.vercel.app/)
 
 The public web app is deployed. The web API uses Gemini `gemini-3.5-flash-lite`, which has a free tier with request limits. Add a Gemini API key as a server-side Vercel environment variable to enable chat.
 
