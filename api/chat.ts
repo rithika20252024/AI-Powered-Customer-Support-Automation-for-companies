@@ -21,8 +21,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
   const history = Array.isArray(req.body?.history) ? req.body.history.slice(-8) : [];
   if (!message || message.length > 2000) return res.status(400).json({ error: 'Enter a message under 2,000 characters.' });
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return res.status(503).json({ error: 'AI is not configured yet. Add OPENAI_API_KEY in the Vercel project environment variables.' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'AI is not configured yet. Add GEMINI_API_KEY in the Vercel project environment variables.' });
 
   const intent = message.match(/price|plan|buy|purchase|sales|quote|cost/i) ? 'sales'
     : message.match(/refund|invoice|payment|bill|charge|subscription/i) ? 'billing'
@@ -31,21 +31,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     : 'general';
   const risk = highRisk.test(message);
   const context = knowledge.filter((entry) => entry.type === intent || entry.type === 'general').map((entry) => entry.text).join('\n');
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
   try {
-    const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, temperature: 0.4, max_tokens: 450, messages: [
-        { role: 'system', content: `You are a kind, concise customer support agent for ABC Technologies. Answer using this policy context; do not invent policy details. If a high-risk request is pending supervisor approval, acknowledge it and do not claim it is completed.\n\nPolicy context:\n${context}` },
-        ...history.filter((item: any) => ['user', 'assistant'].includes(item?.role) && typeof item?.content === 'string').map((item: any) => ({ role: item.role, content: item.content.slice(0, 2000) })),
-        { role: 'user', content: message }
-      ] })
+    const validHistory = history.filter((item: any) => ['user', 'assistant'].includes(item?.role) && typeof item?.content === 'string');
+    const firstUser = validHistory.findIndex((item: any) => item.role === 'user');
+    const apiHistory = (firstUser < 0 ? [] : validHistory.slice(firstUser))
+      .map((item: any) => ({ role: item.role === 'assistant' ? 'model' : 'user', parts: [{ text: item.content.slice(0, 2000) }] }));
+    const upstream = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+      method: 'POST', headers: { 'x-goog-api-key': apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: `You are a kind, concise customer support agent for ABC Technologies. Answer using this policy context; do not invent policy details. If a high-risk request is pending supervisor approval, acknowledge it and do not claim it is completed.\n\nPolicy context:\n${context}` }] },
+        contents: [...apiHistory, { role: 'user', parts: [{ text: message }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: 450 }
+      })
     });
     const data = await upstream.json().catch(() => null);
-    if (!upstream.ok) return res.status(502).json({ error: data?.error?.message || 'The AI provider could not complete the request.' });
-    const reply = data?.choices?.[0]?.message?.content;
+    if (!upstream.ok) return res.status(502).json({ error: data?.error?.message || 'Gemini could not complete the request.' });
+    const reply = data?.candidates?.[0]?.content?.parts?.map((part: any) => typeof part?.text === 'string' ? part.text : '').join('');
     if (typeof reply !== 'string') return res.status(502).json({ error: 'The AI provider returned an empty response.' });
-    return res.status(200).json({ reply, intent, needsApproval: risk, approvalStatus: risk ? 'pending' : null, ragCharacters: context.length, sources: sourcesByIntent[intent] || sourcesByIntent.general, provider: model });
+    return res.status(200).json({ reply, intent, needsApproval: risk, approvalStatus: risk ? 'pending' : null, ragCharacters: context.length, sources: sourcesByIntent[intent] || sourcesByIntent.general, provider: `Gemini · ${model}` });
   } catch {
     return res.status(502).json({ error: 'Could not reach the AI provider. Try again in a moment.' });
   }

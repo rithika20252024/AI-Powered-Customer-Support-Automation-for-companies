@@ -172,7 +172,7 @@ The repository also includes a responsive web chat with intent, risk, retrieved 
 
 [Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-cuuu5tqui.vercel.app/)
 
-The public web app is deployed. The web API uses OpenAI for generated replies; add an OpenAI API key as a server-side Vercel environment variable to enable chat.
+The public web app is deployed. The web API uses Gemini `gemini-3.5-flash-lite`, which has a free tier with request limits. Add a Gemini API key as a server-side Vercel environment variable to enable chat.
 
 ### Local development
 
@@ -188,6 +188,6 @@ Open the local URL printed by Vite. You can set `OLLAMA_MODEL` and `OLLAMA_BASE_
 
 ### Vercel
 
-Import this repository into Vercel with the repository root as the project root. Create an API key at [OpenAI API keys](https://platform.openai.com/api-keys). In Vercel, open this project’s **Settings → Environment Variables**, add `OPENAI_API_KEY` as a Secret for Production, then redeploy. The optional server-side `OPENAI_MODEL` defaults to `gpt-4o-mini`. Never use a `VITE_` prefix for a secret or commit the key. OpenAI API usage may incur charges.
+Import this repository into Vercel with the repository root as the project root. Create a Gemini API key in [Google AI Studio](https://aistudio.google.com/app/apikey). In Vercel, open this project’s **Settings → Environment Variables**, add `GEMINI_API_KEY` as a Secret for Production, then redeploy. The optional server-side `GEMINI_MODEL` defaults to `gemini-3.5-flash-lite`. Never use a `VITE_` prefix for a secret or commit the key. Google’s free tier has rate limits and states that submitted content may be used to improve its products; do not send real sensitive customer information through this demo on the free tier.
 
 The web app stores conversation history in the browser, separately for each customer ID.
