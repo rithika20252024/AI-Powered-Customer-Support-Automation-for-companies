@@ -165,6 +165,12 @@ SELECT thread_id, checkpoint_ns FROM checkpoints LIMIT 10;
 
 The repository also includes a responsive web chat with intent, risk, retrieved knowledge sources, and supervisor approval status.
 
+### Live site
+
+[Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-cuuu5tqui.vercel.app/)
+
+The public web app is deployed. To enable generated replies on the deployment, add `OPENAI_API_KEY` under Vercel Project Settings → Environment Variables and redeploy. The local development app continues to use Ollama.
+
 ### Local development
 
 The local web app uses Ollama and the `qwen2.5:3b` model:
