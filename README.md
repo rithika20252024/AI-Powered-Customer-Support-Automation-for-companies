@@ -169,7 +169,7 @@ The repository also includes a responsive web chat with intent, risk, retrieved 
 
 [Open ABC Customer Support](https://ai-powered-customer-support-automation-for-companies-cuuu5tqui.vercel.app/)
 
-The public web app is deployed. To enable generated replies on the deployment, add `OPENAI_API_KEY` under Vercel Project Settings → Environment Variables and redeploy. The local development app continues to use Ollama.
+The public web app is deployed. The Vercel API uses Vercel AI Gateway and the deployment's OIDC token, so a provider API key is not required on Vercel. Requests may consume AI Gateway credits or use a configured provider connection.
 
 ### Local development
 
@@ -185,6 +185,8 @@ Open the local URL printed by Vite. You can set `OLLAMA_MODEL` and `OLLAMA_BASE_
 
 ### Vercel
 
-Import this repository into Vercel with the repository root as the project root. Set `OPENAI_API_KEY` in Vercel Project Settings → Environment Variables. `OPENAI_MODEL` is optional and defaults to `gpt-4o-mini`. The API key stays server-side. Vercel cannot reach Ollama on a developer's computer, so the deployed serverless API uses the hosted OpenAI model.
+Import this repository into Vercel with the repository root as the project root. The serverless API calls Vercel AI Gateway using `VERCEL_OIDC_TOKEN`, which Vercel provides at runtime. `AI_GATEWAY_MODEL` is optional and defaults to `openai/gpt-4o-mini`. For local development or a different host, create a Vercel AI Gateway API key and set it as the server-only `AI_GATEWAY_API_KEY` environment variable. Never use a `VITE_` prefix for a secret. Gateway usage can incur charges or require a payment method/credits.
+
+To create a Gateway key, open the [Vercel AI Gateway API Keys page](https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai-gateway%2Fapi-keys&title=AI+Gateway+API+Keys), select **Create key**, and copy it somewhere secure. In Vercel, open this project’s **Settings → Environment Variables**, add `AI_GATEWAY_API_KEY`, select the environments you need, and redeploy. The key is shown only when created. For OpenAI specifically, create an API key at [OpenAI API keys](https://platform.openai.com/api-keys); this app’s Gateway path does not need that key unless you configure OpenAI as a BYOK provider.
 
 The web app stores conversation history in the browser, separately for each customer ID.
