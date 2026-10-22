@@ -15,7 +15,7 @@ pip install langgraph langchain-core langchain-ollama rich langgraph-checkpoint-
 
 ### Run
 ```
-python abc_support.py
+python abc_support_system.py
 ```
 
 
@@ -157,3 +157,28 @@ sqlite3 memory.db
 .tables
 SELECT thread_id, checkpoint_ns FROM checkpoints LIMIT 10;
 ```
+
+
+---
+
+## React + TypeScript Web App
+
+The repository also includes a responsive web chat with intent, risk, retrieved knowledge sources, and supervisor approval status.
+
+### Local development
+
+The local web app uses Ollama and the `qwen2.5:3b` model:
+
+```sh
+ollama serve
+npm install
+npm run dev
+```
+
+Open the local URL printed by Vite. You can set `OLLAMA_MODEL` and `OLLAMA_BASE_URL` in `.env.local` to use another installed model or Ollama server.
+
+### Vercel
+
+Import this repository into Vercel with the repository root as the project root. Set `OPENAI_API_KEY` in Vercel Project Settings → Environment Variables. `OPENAI_MODEL` is optional and defaults to `gpt-4o-mini`. The API key stays server-side. Vercel cannot reach Ollama on a developer's computer, so the deployed serverless API uses the hosted OpenAI model.
+
+The web app stores conversation history in the browser, separately for each customer ID.
